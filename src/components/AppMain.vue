@@ -2,7 +2,15 @@
   <main class="text-left">
     <h1 class="py-5 text-center text-3xl font-bold">Send notifications to your iPhone easily from now.</h1>
     <div class="md:w-1/2 mx-auto">
-      <Vueform validate-on="step|change" add-class="vf-my-form" :endpoint="sendNotifications">
+      <div v-show="showCache">
+        <div
+          class="form-bg-success form-color-success rounded form-radius-input form-text form-mb-gutter py-2 px-3 mt-4">
+          <p>Restore from cache. <span @click="clearCache" class="underline hover:cursor-pointer">Clear?</span></p>
+          <p class="mt-2" v-if="clearStatus">Clear cache successfully. Please refresh the page.</p>
+        </div>
+      </div>
+      <Vueform :model-value="data" @update:modelValue="updateData" sync 
+        validate-on="step|change" add-class="vf-my-form" :endpoint="sendNotifications">
         <TextElement name="server" input-type="url" :rules="[
           'nullable',
           'url',
@@ -99,6 +107,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
 import axios from 'axios'
 import { Validator } from '@vueform/vueform'
 
@@ -203,11 +212,13 @@ function countDown(self, targetTime) {
     return;
   }
   setTimeout(countDown, 1000, self, targetTime)
-
 }
+
 export default {
   data() {
     return {
+      showCache: false,
+      clearStatus: false,
       showStatus: false,
       status: false,
       showSchedule: false,
@@ -215,8 +226,31 @@ export default {
       compareByNow: compareByNowRule
     }
   },
+  computed: {
+    ...mapState({
+      data: state => {
+        return state.forms.registration
+      }
+    })
+  },
+  mounted() {
+    let obj = JSON.parse(sessionStorage.getItem('REGISTRATION'))
+    if (obj !== null) {
+      this.showCache = true
+    } else {
+      this.showCache = false
+    }
+  },
   methods: {
-
+    updateData() {
+      this.$store.commit('UPDATE_FROM_DATA', {
+        data: this.data
+      })
+    },
+    clearCache() {
+      sessionStorage.removeItem('REGISTRATION')
+      this.clearStatus = true
+    },
     async sendNotifications(data, form$) {
       // prepare data
       data = prepareData(form$)
