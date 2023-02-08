@@ -2,6 +2,7 @@
 <p align="left">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg"></a>
 </p>
+[Home Page]()
 
 A web client for [Bark](https://github.com/Finb/Bark), which is a perfect app that allows you to push customed notifications to your iPhone.
 
@@ -54,6 +55,7 @@ $ curl -X "POST" "http://127.0.0.1:8080/push" \
 - FrontEnd
   - vue 3
   - vite
+  - Tailwind CSS
   - vueform
   - axios
 - BackEnd
@@ -61,11 +63,18 @@ $ curl -X "POST" "http://127.0.0.1:8080/push" \
 
 #### 3. Acknowledgements
 
-
+1. Developer of [Bark](https://github.com/Finb/Bark), which provide service of notifications.
+2. Developer of [GreenWall](https://green-wall.vercel.app/), which provide a elegant style.
 
 #### Changelogs
 
+##### 2022.02.08 (v0.9.0)
 
+###### Feature
+
+1. Support writing and sending notifications on the Web easily
+2. Support sending at a schedule time
+3. Support local cache to avoid data lost
 
 #### Reference
 
