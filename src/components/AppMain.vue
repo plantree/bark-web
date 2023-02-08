@@ -28,7 +28,7 @@
         <CheckboxElement name="schedule" text="Schedule time (optional)" />
         <DateElement name="schedule-input" :time="true" :conditions="[
           ['schedule', '==', true]
-        ]" />
+        ]" :rules="[compareByNow]" />
         <CheckboxElement name="level" text="Level (optional)" />
         <SelectElement name="level-input" :items="[
           {
@@ -74,25 +74,44 @@
           'url',
         ]" placeholder="eg. http(s)://domain.com" :floating="false" :conditions="[
   ['url', '==', true]
-]" />   
-<div class="flex col-span-6">
-  <div class="basis-1/2">
-        <ButtonElement  name="submit" button-label="Send" :submits="true" />
-  </div>
-  <span v-show="show">
-      <span v-if="status" class="inline-block transition form-shadow-btn bg-green-600/75 form-color-btn form-border-color-btn form-p-btn form-radius-btn form-text cursor-pointer transition-transform ease-linear transform">Success</span>
-        <span v-else class="inline-block transition form-shadow-btn bg-red-600/75 form-color-btn form-border-color-btn form-p-btn form-radius-btn form-text cursor-pointer transition-transform ease-linear transform">Failed</span>
-  </span>
-  
-      
-</div>
+]" />
+        <ButtonElement name="submit" button-label="Send" :submits="true" />
       </Vueform>
+      <div v-show="showSchedule">
+        <div
+          class="bg-gray-400/75 rounded form-radius-input form-text form-mb-gutter py-2 px-3 mt-4">
+          <p>Time remains to send notification:</p>
+          <p>{{ timeRemains }}</p>
+        </div> 
+      </div>
+      <div v-show="showStatus">
+        <div v-if="status"
+          class="form-bg-success form-color-success rounded form-radius-input form-text form-mb-gutter py-2 px-3 mt-4">
+          Send notification successfully.
+        </div>
+        <div v-else
+          class="form-bg-danger form-color-danger rounded form-radius-input form-text form-mb-gutter py-2 px-3 mt-4">
+          Send notification failed.
+        </div>
+      </div>
     </div>
   </main>
 </template>
 
 <script>
 import axios from 'axios'
+import { Validator } from '@vueform/vueform'
+
+const compareByNowRule = class extends Validator {
+  get message() {
+    return 'The schedule time must ahead now'
+  }
+  check(value) {
+    let given = new Date(value)
+    let now = new Date()
+    return now < given
+  }
+}
 
 function prepareData(form$) {
   let formData = form$.data
@@ -144,35 +163,77 @@ function prepareData(form$) {
     schedule: schedule
   }
 }
+async function send(self, server, requestDataList) {
+  for (let requestData of requestDataList) {
+    try {
+      let response = await axios.post(server, requestData)
+      if (response.status === 200 && response.data.code === 200) {
+        // success
+        self.showStatus = true
+        self.status = true
+        return response
+      }
+    } catch (e) {
+      console.log(e)
+    }
+    // fail
+    self.showStatus = true
+    self.status = false
+  }
+}
+function addZero(i) {
+  return i < 10 ? "0" + i : i + ""
+}
+function countDown(self, targetTime) {
+  let nowTime = new Date()
+  let endTime = new Date(targetTime)
+  let timeDelta = parseInt((endTime.getTime() - nowTime.getTime()) / 1000)
+  let d = parseInt(timeDelta / (24 * 60 * 60))
+  let h = parseInt(timeDelta / (60 * 60) % 24)
+  let m = parseInt(timeDelta / 60 % 60)
+  let s = parseInt(timeDelta % 60)
+  d = addZero(d)
+  h = addZero(h)
+  m = addZero(m)
+  s = addZero(s)
+  self.timeRemains = `${d}d ${h}h ${m}m ${s}s`
+  console.log(self.timeRemains)
+  if (timeDelta <= 0) {
+    self.timeRemains = '0'
+    return;
+  }
+  setTimeout(countDown, 1000, self, targetTime)
+
+}
 export default {
   data() {
     return {
-      show: false,
-      status: false
+      showStatus: false,
+      status: false,
+      showSchedule: false,
+      timeRemains: '',
+      compareByNow: compareByNowRule
     }
   },
   methods: {
+
     async sendNotifications(data, form$) {
       // prepare data
       data = prepareData(form$)
       let server = data['server']
       let requestDataList = data['requestDataList']
       let schedule = data['schedule']
-      for (let requestData of requestDataList) {
-        try {
-          let response = await axios.post(server, requestData)
-          if (response.status === 200 && response.data.code === 200) {
-            // success
-            this.show = true
-            this.status = true
-            return response
-          }
-        } catch (e) {
-          console.log(e)
+      if (schedule === null) {
+        this.showSchedule = false
+        send(this, server, requestDataList)
+      } else {
+        // schedule to the given time
+        let delay = new Date(schedule) - new Date()
+        if (delay > 0) {
+          setTimeout(send, delay, this, server, requestDataList)
+          this.showSchedule = true
+          countDown(this, schedule)
         }
-        // fail
-        this.show = true
-        this.status = false
       }
     }
   }
