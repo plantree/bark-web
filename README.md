@@ -2,7 +2,7 @@
 <p align="left">
 <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-green.svg"></a>
 </p>
-[Home Page]()
+[Home Page](https://bark-web.plantree.me)
 
 A web client for [Bark](https://github.com/Finb/Bark), which is a perfect app that allows you to push customed notifications to your iPhone.
 
@@ -56,8 +56,8 @@ $ curl -X "POST" "http://127.0.0.1:8080/push" \
   - vue 3
   - vite
   - Tailwind CSS
-  - vueform
   - axios
+  - formKit
 - BackEnd
   - Vercel
 
@@ -67,6 +67,13 @@ $ curl -X "POST" "http://127.0.0.1:8080/push" \
 2. Developer of [GreenWall](https://green-wall.vercel.app/), which provide a elegant style.
 
 #### Changelogs
+
+##### 2022.02.10(v0.9.1)
+
+###### Feature
+
+1. reconstruct because of commercial license
+2. features are the same as last version
 
 ##### 2022.02.08 (v0.9.0)
 
@@ -82,4 +89,5 @@ $ curl -X "POST" "http://127.0.0.1:8080/push" \
 2. https://github.com/Finb/bark-server
 3. https://github.com/Finb/bark-server/blob/master/docs/API_V2.md
 4. https://green-wall.vercel.app/
+5. https://formkit.com/
 

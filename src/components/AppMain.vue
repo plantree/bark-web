@@ -73,7 +73,6 @@
 </template>
 
 <script lang="ts">
-import { mapState } from 'vuex'
 import axios from 'axios'
 
 function prepareData(self) {
