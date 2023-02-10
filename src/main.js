@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
-import Vueform from '@vueform/vueform/plugin'
-import vueformConfig from '../vueform.config'
+import { plugin, defaultConfig } from '@formkit/vue'
+import '@formkit/themes/genesis'
 
 import './style.css'
 import App from './App.vue'
@@ -10,9 +10,7 @@ import App from './App.vue'
 const store = createStore({
     state() {
         return {
-            forms: {
-                registration: JSON.parse(sessionStorage.getItem('REGISTRATION')) || {},
-            }
+            form: JSON.parse(sessionStorage.getItem('REGISTRATION')) || {}
         }
     },
     mutations: {
@@ -24,5 +22,5 @@ const store = createStore({
 
 createApp(App)
     .use(store)
-    .use(Vueform, vueformConfig)
+    .use(plugin, defaultConfig)
     .mount('#app')
